@@ -1,0 +1,12 @@
+import { build } from 'esbuild';
+import { createServer } from 'vite';
+import { spawn } from 'node:child_process';
+import electron from 'electron';
+import { cp, mkdir } from 'node:fs/promises';
+await mkdir('public/pdf-assets', { recursive: true });
+for (const dir of ['cmaps', 'standard_fonts', 'wasm']) await cp(`node_modules/pdfjs-dist/${dir}`, `public/pdf-assets/${dir}`, { recursive: true });
+await build({ entryPoints: ['electron/main.ts', 'electron/preload.ts', 'electron/pdf-worker.ts'], outdir: 'dist-electron', outExtension: { '.js': '.cjs' }, bundle: true, platform: 'node', format: 'cjs', external: ['electron'] });
+const server = await createServer({ server: { port: 5173, strictPort: true } }); await server.listen();
+const env = { ...process.env, VITE_DEV_SERVER_URL: 'http://localhost:5173' }; delete env.ELECTRON_RUN_AS_NODE;
+const child = spawn(electron, ['.'], { stdio: 'inherit', env });
+child.on('exit', async () => { await server.close(); process.exit(); });

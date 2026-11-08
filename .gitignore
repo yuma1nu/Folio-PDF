@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-electron/
+release/
+test-results/
+public/pdf-assets/
+*.log
+docs/reference/
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
