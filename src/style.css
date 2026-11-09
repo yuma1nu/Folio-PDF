@@ -5,5 +5,6 @@
 @media(max-width:1050px){.toolbar{padding:0 10px;gap:1px}.toolbar>.button:not(.icon-button){font-size:0;gap:0;padding:6px}.brand{min-width:170px}.home{padding:40px}.toolbar-divider{margin:0 3px}.open-card>span:not(.open-card-icon){display:none}.toolbar .button{min-width:27px;width:auto}.toolbar .icon-button{width:27px}.organize-toolbar{padding:8px}.organize-toolbar>span{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 
 /* Document actions share one row; the filename is already shown in its tab. */
+.viewer-container > .pdfViewer{width:max-content;min-width:100%}
 .save-state{display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;flex-shrink:0;color:var(--muted);font-size:9px;margin-left:8px}.home-toolbar{height:42px}
 @media(max-width:1050px){.save-state-label{display:none}.save-state{margin-left:4px}}

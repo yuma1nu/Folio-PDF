@@ -101,11 +101,22 @@ export class ViewerController {
     this.zoom(Math.max(0.25, Math.min(16, this.viewer.currentScale * factor)), event.clientX, event.clientY);
   };
   zoom(scale: number | string, x?: number, y?: number) {
-    const rect = this.container.getBoundingClientRect(), px = x === undefined ? rect.width / 2 : x - rect.left, py = y === undefined ? rect.height / 2 : y - rect.top;
+    const rect = this.container.getBoundingClientRect(), px = x === undefined ? this.container.clientWidth / 2 : x - rect.left, py = y === undefined ? this.container.clientHeight / 2 : y - rect.top;
     const old = this.viewer.currentScale, left = this.container.scrollLeft, top = this.container.scrollTop;
+    const oldWidth = this.viewer.viewer!.getBoundingClientRect().width;
     if (typeof scale === 'number') this.viewer.updateScale({ scaleFactor: Math.max(.25, Math.min(16, scale)) / old, origin: [px, py], drawingDelay: 120 });
     else this.viewer.currentScaleValue = scale;
-    if (typeof scale === 'number') { const factor = this.viewer.currentScale / old; this.container.scrollLeft = (left + px) * factor - px; this.container.scrollTop = (top + py) * factor - py; }
+    if (typeof scale === 'number') {
+      const factor = this.viewer.currentScale / old;
+      const newWidth = this.viewer.viewer!.getBoundingClientRect().width;
+      // The content width has a viewport-sized minimum. Its empty margins do
+      // not scale like PDF coordinates when crossing the fit-width boundary.
+      const offset = left + px - oldWidth / 2;
+      const anchorOffset = Math.abs(offset) <= 1 ? 0 : offset;
+      const targetX = x === undefined ? this.container.clientWidth / 2 : px;
+      this.container.scrollLeft = newWidth / 2 + anchorOffset * factor - targetX;
+      this.container.scrollTop = (top + py) * factor - py;
+    }
   }
   go(page: number) { if (page >= 1 && page <= this.doc.pages.length) this.viewer.currentPageNumber = page; }
   search(query: string, sensitive = false, again = false, backwards = false) {
