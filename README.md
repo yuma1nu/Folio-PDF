@@ -4,10 +4,10 @@ Windows 11向けのローカルPDFビューアです。Electron・React・TypeSc
 
 ## 使い始める
 
-GitHubのReleasesから `Folio PDF Setup 0.1.2.exe` をダウンロードして実行してください。公開されたReleaseはGitHubへのログインなしでダウンロードできます。
+GitHubのReleasesから `Folio PDF Setup 0.1.3.exe` をダウンロードして実行してください。公開されたReleaseはGitHubへのログインなしでダウンロードできます。
 
-ローカルでビルドした場合は `release/0.1.2/Folio PDF Setup 0.1.2.exe` が生成されます。
-インストールせず試す場合は `release/0.1.2/win-unpacked/Folio PDF.exe` を実行できます。この場合は `win-unpacked` フォルダー全体を保持してください。
+ローカルでビルドした場合は `release/0.1.3/Folio PDF Setup 0.1.3.exe` が生成されます。
+インストールせず試す場合は `release/0.1.3/win-unpacked/Folio PDF.exe` を実行できます。この場合は `win-unpacked` フォルダー全体を保持してください。
 
 - PDFを開く：Ctrl+O、ファイルのドロップ、関連付け後のダブルクリック。
 - サムネイルでページ移動。Ctrl+Fで文書全体を検索。

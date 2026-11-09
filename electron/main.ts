@@ -1,14 +1,14 @@
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, screen, type IpcMainInvokeEvent } from 'electron';
 import { readFile, writeFile, rename, unlink, mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
-import { watch, type FSWatcher } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { Worker } from 'node:worker_threads';
 import type { Doc, DocumentUI, Edit, PageRef, Recent, Settings, Snapshot, View } from '../src/shared';
 import { editPages, samePages } from '../src/core';
+import { monitorFile } from './file-monitor';
 
-type Internal = Doc & { owner: number; initial: PageRef[]; undo: PageRef[][]; redo: PageRef[][]; bytes?: Uint8Array; unsupported?: boolean; watcher?: FSWatcher; stamp?: number };
+type Internal = Doc & { owner: number; initial: PageRef[]; undo: PageRef[][]; redo: PageRef[][]; bytes?: Uint8Array; unsupported?: boolean; watcher?: { close(): void }; stamp?: number };
 type SavedWindow = { paths: string[]; active?: string; bounds?: Electron.Rectangle };
 type Persisted = { settings: Settings; recent: Recent[]; views: Record<string, View>; windows: SavedWindow[] };
 const defaults: Settings = { theme: 'system', openMode: 'tab', restore: true };
@@ -76,7 +76,7 @@ async function openPaths(owner: number, paths: string[], forceOwner = false) {
   for (const file of paths) {
     try {
       if (typeof file !== 'string' || !path.isAbsolute(file) || path.extname(file).toLowerCase() !== '.pdf') throw new Error('PDFファイルを指定してください。');
-      await stat(file);
+      const initialStat = await stat(file);
       const duplicate = [...documents.values()].find(d => normalize(d.path) === normalize(file));
       if (duplicate) { setActive(duplicate.owner, duplicate.id); windows.get(duplicate.owner)?.win.focus(); continue; }
       if (!forceOwner && persisted.settings.openMode === 'window' && windowDocs(current).length) current = createWindow();
@@ -85,7 +85,7 @@ async function openPaths(owner: number, paths: string[], forceOwner = false) {
       const doc: Internal = { id, path: file, name: path.basename(file), pages: [], dirty: false, encrypted: false, signed: false, complex: false, restricted: false, printAllowed: true, version: 0, view, ui: { query: '', sensitive: false, selected: [], organize: false, panel: 'pages' }, canUndo: false, canRedo: false, owner: current, initial: [], undo: [], redo: [] };
       documents.set(id, doc); setActive(current, id);
       persisted.recent = [{ path: file, name: doc.name }, ...persisted.recent.filter(r => normalize(r.path) !== normalize(file))].slice(0, 20);
-      try { doc.watcher = watch(file, () => { doc.changed = true; broadcast(); }); } catch { /* unavailable on some network shares */ }
+      doc.watcher = monitorFile(file, initialStat, () => { if (documents.has(id)) { doc.changed = true; broadcast(); } }, error => console.warn('File monitoring failed; using periodic update checks:', error));
       broadcast();
     } catch (error) { errors.push(`${path.basename(file)}: ${String(error)}`); }
   }

@@ -1,7 +1,7 @@
 {
   "name": "folio-pdf-viewer",
   "productName": "Folio PDF",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.cjs",
@@ -41,7 +41,7 @@
     "appId": "jp.folio.pdfviewer",
     "asar": true,
     "directories": {
-      "output": "release/0.1.2"
+      "output": "release/0.1.3"
     },
     "files": [
       "dist/**/*",
